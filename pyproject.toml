@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "hexlet-code"
+version = "0.1.0"
+description = "hexlet python project #3"
+authors = ["jkulds <w84my5@yandex.ru>"]
+readme = "README.md"
+packages = [{include = "page_analyzer"}]
+repository = "https://github.com/jkulds/python-project-83"
+classifiers = [
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Flask = "^3.0.0"
+gunicorn = "^21.2.0"
+python-dotenv = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^6.1.0"
+pytest = ">=7.4.0"
+pytest-cov = ">=4.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

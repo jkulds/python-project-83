@@ -10,6 +10,9 @@ build:
 lint:
 	poetry run flake8 page_analyzer
 
+test:
+	poetry run pytest
+
 PORT ?= 8000
 start:
 	poetry run python -m gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer:app

@@ -8,9 +8,10 @@ from dotenv import load_dotenv, find_dotenv
 from flask import Flask, render_template, redirect, request, flash, url_for
 
 from page_analyzer.UrlRepository import UrlRepository
-from page_analyzer.db import bootstrap
+from page_analyzer.db_utils import bootstrap
 from page_analyzer.models.UrlCkeckDto import UrlCheckDto
 from page_analyzer.models.UrlDto import UrlDto
+from page_analyzer.seo_parser import get_seo_info_dict
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
@@ -73,9 +74,11 @@ def checks(url_id):
         flash('Произошла ошибка при проверке', 'danger')
     else:
         if response.status_code == 200:
-            url_check = UrlCheckDto(url_id=url_id, status_code=response.status_code)
+            seo_dict = get_seo_info_dict(response.text)
+            url_check = UrlCheckDto(url_id=url_id, status_code=response.status_code, **seo_dict)
             repository.add_check(url_check)
         else:
+            print(response.status_code, response.text)
             flash('Произошла ошибка при проверке', 'danger')
     finally:
         return redirect(url_for('get_url_detail', url_id=url_id))

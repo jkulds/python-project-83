@@ -1,6 +1,6 @@
 from page_analyzer.models.UrlCkeckDto import UrlCheckDto
 from page_analyzer.models.UrlDto import UrlDto
-from page_analyzer.db import get_connection
+from page_analyzer.db_utils import get_connection
 
 
 class UrlRepository:

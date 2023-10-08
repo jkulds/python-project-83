@@ -2,22 +2,20 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 
-import psycopg2
+import requests as requests
 import validators as validators
-from flask import Flask, render_template, redirect, request, flash, url_for
 from dotenv import load_dotenv, find_dotenv
-from page_analyzer.UrlRepository import UrlRepository
-from page_analyzer.models.UrlCkeckDto import UrlCheckDto
+from flask import Flask, render_template, redirect, request, flash, url_for
 
+from page_analyzer.UrlRepository import UrlRepository
+from page_analyzer.db import bootstrap
+from page_analyzer.models.UrlCkeckDto import UrlCheckDto
 from page_analyzer.models.UrlDto import UrlDto
-from page_analyzer.db import create_default_table
 
 app = Flask(__name__)
-if "SECRET_KEY" not in os.environ:
-    load_dotenv(find_dotenv())
 app.secret_key = os.getenv('SECRET_KEY')
 
-create_default_table(f'{str(Path(os.path.dirname(__file__)).parent)}/database.sql')
+bootstrap(f'{str(Path(os.path.dirname(__file__)).parent)}/database.sql')
 
 repository = UrlRepository()
 
@@ -56,21 +54,31 @@ def create_url():
     url = UrlDto(name=correct_name)
     created_url = repository.add(url)
 
-    return redirect(url_for('get_url_detail', id=created_url.id))
+    return redirect(url_for('get_url_detail', url_id=created_url.id))
 
 
-@app.get('/urls/<id>')
-def get_url_detail(id):
-    url = repository.get_by_id(id)
-    url_checks = repository.get_checks_by_url_id(id)
+@app.get('/urls/<url_id>')
+def get_url_detail(url_id):
+    url = repository.get_by_id(url_id)
+    url_checks = repository.get_checks_by_url_id(url_id)
     return render_template('urls/single.html', url=url, url_checks=url_checks)
 
 
-@app.post("/urls/<id>/checks")
-def checks(id):
-    url_check = UrlCheckDto(url_id=id)
-    repository.add_check(url_check)
-    return redirect(url_for('get_url_detail', id=id))
+@app.post("/urls/<url_id>/checks")
+def checks(url_id):
+    url = repository.get_by_id(url_id)
+    try:
+        response = requests.get(url.name, timeout=5)
+    except (requests.ConnectionError, requests.Timeout, requests.RequestException):
+        flash('Произошла ошибка при проверке', 'danger')
+    else:
+        if response.status_code == 200:
+            url_check = UrlCheckDto(url_id=url_id, status_code=response.status_code)
+            repository.add_check(url_check)
+        else:
+            flash('Произошла ошибка при проверке', 'danger')
+    finally:
+        return redirect(url_for('get_url_detail', url_id=url_id))
 
 
 def create_app():
@@ -79,5 +87,3 @@ def create_app():
 
 if __name__ == '__main__':
     app.run()
-
-

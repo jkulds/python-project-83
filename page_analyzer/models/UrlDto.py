@@ -8,4 +8,4 @@ class UrlDto:
         self.name = kwargs.get('name', '')
         self.created_at = kwargs.get('created_at', datetime.now())
         self.id = kwargs.get('id', 0)
-        self.url_check = UrlCheckDto(**kwargs)
+        self.last_url_check = UrlCheckDto(**kwargs)

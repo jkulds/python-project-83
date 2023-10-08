@@ -16,7 +16,7 @@ def get_connection():
         raise RuntimeError('Ошибка подключении к базе данных')
 
 
-def create_default_table(path):
+def bootstrap(path):
     with get_connection() as connection:
         with connection.cursor() as cursor:
             with open(path) as sql_file:

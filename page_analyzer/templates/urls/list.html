@@ -22,12 +22,12 @@
                 <tr>
                   <td>{{ url.id }}</td>
                   <td>
-                      <a href="{{ url_for('get_url_detail', id=url.id) }}">
+                      <a href="{{ url_for('get_url_detail', url_id=url.id) }}">
                       {{ url.name }}
                       </a>
                   </td>
-                  <td>{{ url.url_check.created_at|default('', True) }}</td>
-                  <td>{{ url.url_check.status_code|default('', True) }}</td>
+                  <td>{{ url.last_url_check.created_at|default('', True) }}</td>
+                  <td>{{ url.last_url_check.status_code|default('', True) }}</td>
                 </tr>
               {% endfor %}
             </tbody>

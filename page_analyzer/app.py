@@ -4,11 +4,11 @@ from urllib.parse import urlparse
 
 import psycopg2
 import validators as validators
-from flask import Flask, render_template, redirect, request, flash, get_flashed_messages
+from flask import Flask, render_template, redirect, request, flash
 from dotenv import load_dotenv, find_dotenv
 from page_analyzer.UrlRepository import UrlRepository
 
-from page_analyzer.UrlDto import UrlDto
+from page_analyzer.models.UrlDto import UrlDto
 from page_analyzer.db import create_default_table
 
 app = Flask(__name__)
@@ -18,7 +18,7 @@ app.secret_key = os.getenv('SECRET_KEY')
 db_connection = psycopg2.connect(os.getenv('DATABASE_URL'))
 db_connection.autocommit = True
 create_default_table(db_connection, f'{str(Path(os.path.dirname(__file__)).parent)}/database.sql')
-repository = UrlRepository(db_connection)
+repository = UrlRepository()
 
 @app.route("/", methods=['GET'])
 def index():

@@ -1,4 +1,4 @@
-from page_analyzer.UrlDto import UrlDto
+from page_analyzer.models.UrlDto import UrlDto
 from page_analyzer.db import get_connection
 
 
@@ -38,7 +38,11 @@ class UrlRepository:
 
                 return record is not None
 
-    def _convert_to_dict(self, columns, results):
+    def add_check(self, url_check):
+        pass
+
+    @staticmethod
+    def _convert_to_dict(columns, results):
         all_results = []
         columns = [col.name for col in columns]
         if type(results) is list:

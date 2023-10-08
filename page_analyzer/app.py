@@ -9,7 +9,7 @@ from dotenv import load_dotenv, find_dotenv
 from page_analyzer.UrlRepository import UrlRepository
 
 from page_analyzer.UrlDto import UrlDto
-from page_analyzer.db_initializer import create_default_table
+from page_analyzer.db import create_default_table
 
 app = Flask(__name__)
 if "SECRET_KEY" not in os.environ:

@@ -1,56 +1,44 @@
 from page_analyzer.UrlDto import UrlDto
+from page_analyzer.db import get_connection
 
 
 class UrlRepository:
-    def __init__(self, connection):
-        self.connection = connection
-
     def get_all(self):
-        cursor = self.connection.cursor()
+        with get_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("select * from urls order by id desc;")
+                records = cursor.fetchall()
 
-        cursor.execute(f"select * from urls order by id desc")
-        records = cursor.fetchall()
+                records_dict = self._convert_to_dict(cursor.description, records)
 
-        records_dict = self.convert_to_dict(cursor.description, records)
-
-        result = []
-        for record in records_dict:
-            url = UrlDto(**record)
-            result.append(url)
-
-        return result
+                return [UrlDto(**record) for record in records_dict]
 
     def add(self, url: UrlDto) -> UrlDto:
-        cursor = self.connection.cursor()
+        with get_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("insert into urls (name, created_at) values (%s, %s) RETURNING id;",
+                               (url.name, url.created_at))
+                url.id = cursor.fetchone()[0]
 
-        cursor.execute(f"insert into urls (name, created_at) values (%s, %s) RETURNING id",
-                       (url.name, url.created_at))
-        url.id = cursor.fetchone()[0]
-
-        return url
+                return url
 
     def get_by_id(self, id):
-        cursor = self.connection.cursor()
+        with get_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("select * from urls where id = %s;", id)
+                record_dict = self._convert_to_dict(cursor.description, cursor.fetchone())[0]
 
-        cursor.execute(f"select * from urls where id = %s", id)
-        record = cursor.fetchone()
-
-        record_dict = self.convert_to_dict(cursor.description, record)[0]
-
-        url = UrlDto(**record_dict)
-
-        return url
+                return UrlDto(**record_dict)
 
     def is_exists(self, name: str) -> bool:
-        cursor = self.connection.cursor()
+        with get_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(f"select * from urls where name like '{name}';")
+                record = cursor.fetchone()
 
-        cursor.execute(f"select * from urls where name like '{name}'")
-        record = cursor.fetchone()
+                return record is not None
 
-        return record is not None
-
-
-    def convert_to_dict(self, columns, results):
+    def _convert_to_dict(self, columns, results):
         all_results = []
         columns = [col.name for col in columns]
         if type(results) is list:

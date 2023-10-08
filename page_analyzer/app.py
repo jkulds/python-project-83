@@ -47,10 +47,10 @@ def create_url():
 
     correct_name = normalize_url(str_url)
 
-    is_exists = repository.is_exists(correct_name)
-    if is_exists:
+    url_dto = repository.get_by_name(correct_name)
+    if url_dto:
         flash("Страница уже существует", 'info')
-        return redirect('/')
+        return redirect(url_for('get_url_detail', url_id=url_dto.id))
     else:
         url = UrlDto(name=correct_name)
         created_url = repository.add(url)
@@ -82,7 +82,7 @@ def checks(url_id):
                                     status_code=response.status_code,
                                     **seo_dict)
             repository.add_check(url_check)
-            flash('Проверка прошла успешно', 'success')
+            flash('Страница успешно проверена', 'success')
         else:
             print(response.status_code, response.text)
             flash('Произошла ошибка при проверке', 'danger')

@@ -8,15 +8,14 @@ class UrlRepository:
         with get_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
-                    "select * from urls u "
-                    "left join "
-                    "(select url_id, "
-                    "title, description, status_code, created_at, h1 "
-                    "from url_checks "
-                    "where id in "
-                    "(select max(id) as id from url_checks group by url_id)) uc"
-                    " on u.id = uc.url_id "
-                    "order by u.id desc;")
+                    """select distinct on (urls.id)
+                            urls.id,
+                            urls.name,
+                            url_checks.created_at,
+                            url_checks.status_code
+                       from urls left join url_checks
+                            ON urls.id = url_checks.url_id
+                       order by urls.id desc, url_checks.id desc;""")
                 records_dict_list = self._convert_to_dict(cursor.description,
                                                           cursor.fetchall())
 
@@ -43,13 +42,18 @@ class UrlRepository:
 
                 return UrlDto(**record_dict)
 
-    def is_exists(self, name: str) -> bool:
+    def get_by_name(self, name: str) -> UrlDto|None:
         with get_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(f"select * from urls where name like '{name}';")
                 record = cursor.fetchone()
+                if record:
+                    record_dict = \
+                        self._convert_to_dict(cursor.description, record)[0]
 
-                return record is not None
+                    return UrlDto(**record_dict)
+                else:
+                    return None
 
     def add_check(self, url_check: UrlCheckDto) -> UrlCheckDto:
         with get_connection() as connection:

@@ -46,11 +46,6 @@ def test_correct_urls(client, urls_json):
         assert "Некорректный URL" not in response.text
         assert response.status_code == 200
 
-
-@pytest.mark.parametrize('url', [pytest.param('https://codeclimate.com')])
-def test_check(client, url):
-    client.post('/urls', data={'url': url},
-                follow_redirects=True)
     check_response = client.post('/urls/1/checks', data={'url': url},
                                  follow_redirects=True)
 

@@ -54,7 +54,7 @@ def create_url():
     else:
         url = UrlDto(name=correct_name)
         created_url = repository.add(url)
-        flash('Url успешно записан', 'success')
+        flash('Страница успешно добавлена', 'success')
         return redirect(url_for('get_url_detail', url_id=created_url.id))
 
 

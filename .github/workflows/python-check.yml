@@ -11,9 +11,8 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
-          POSTGRES_PORT: 5432
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: urls
         ports:
           - 5432:5432
@@ -39,7 +38,7 @@ jobs:
         uses: paambaati/codeclimate-action@v3.2.0
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-          DATABASE_URL: postgres://postgres:postgres@postgres:5432/urls
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/urls
         with:
           coverageCommand: make test-coverage
           debug: true

@@ -73,8 +73,7 @@ class UrlRepository:
             with connection.cursor() as cursor:
                 cursor.execute(
                     "select * from url_checks "
-                    "where url_id = %s order by id desc",
-                    url_id)
+                    f"where url_id = {url_id} order by id desc")
                 records_dict_list = self._convert_to_dict(cursor.description,
                                                           cursor.fetchall())
 

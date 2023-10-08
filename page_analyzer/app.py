@@ -49,7 +49,7 @@ def create_url():
 
     is_exists = repository.is_exists(correct_name)
     if is_exists:
-        flash("Такая запись уже существует", 'info')
+        flash("Страница уже существует", 'info')
         return redirect('/')
     else:
         url = UrlDto(name=correct_name)

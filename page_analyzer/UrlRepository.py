@@ -36,7 +36,7 @@ class UrlRepository:
     def get_by_id(self, id: int) -> UrlDto:
         with get_connection() as connection:
             with connection.cursor() as cursor:
-                cursor.execute("select * from urls where id = %s;", id)
+                cursor.execute(f"select * from urls where id = {id};")
                 record = cursor.fetchone()
                 record_dict = \
                     self._convert_to_dict(cursor.description, record)[0]

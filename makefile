@@ -11,7 +11,10 @@ lint:
 	poetry run flake8 page_analyzer
 
 test:
-	poetry run pytest
+	poetry run pytest -vv
+
+test-coverage:
+	poetry run pytest --cov=page_analyzer --cov-report xml
 
 PORT ?= 8000
 start:

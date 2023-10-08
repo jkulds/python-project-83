@@ -12,7 +12,7 @@ def get_connection():
         connection = psycopg2.connect(db_url)
         connection.autocommit = True
         return connection
-    except:
+    except Exception:
         raise RuntimeError('Ошибка подключении к базе данных')
 
 

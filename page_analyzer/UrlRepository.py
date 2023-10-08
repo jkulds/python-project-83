@@ -9,22 +9,26 @@ class UrlRepository:
             with connection.cursor() as cursor:
                 cursor.execute(
                     "select * from urls u "
-                    "   left join "
-                    "       (select url_id, title, description, status_code, created_at, h1 "
-                    "           from url_checks "
-                    "               where id in "
-                    "                   (select max(id) as id from url_checks group by url_id)) uc "
-                    "       on u.id = uc.url_id "
-                    "       order by u.id desc;")
-                records_dict_list = self._convert_to_dict(cursor.description, cursor.fetchall())
+                    "left join "
+                    "(select url_id, "
+                    "title, description, status_code, created_at, h1 "
+                    "from url_checks "
+                    "where id in "
+                    "(select max(id) as id from url_checks group by url_id)) uc"
+                    " on u.id = uc.url_id "
+                    "order by u.id desc;")
+                records_dict_list = self._convert_to_dict(cursor.description,
+                                                          cursor.fetchall())
 
                 return [UrlDto(**record) for record in records_dict_list]
 
     def add(self, url: UrlDto) -> UrlDto:
         with get_connection() as connection:
             with connection.cursor() as cursor:
-                cursor.execute("insert into urls (name, created_at) values (%s, %s) RETURNING id;",
-                               (url.name, url.created_at))
+                cursor.execute(
+                    "insert into urls (name, created_at) "
+                    "values (%s, %s) RETURNING id;",
+                    (url.name, url.created_at))
                 url.id = cursor.fetchone()[0]
 
                 return url
@@ -33,7 +37,9 @@ class UrlRepository:
         with get_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute("select * from urls where id = %s;", id)
-                record_dict = self._convert_to_dict(cursor.description, cursor.fetchone())[0]
+                record = cursor.fetchone()
+                record_dict = \
+                    self._convert_to_dict(cursor.description, record)[0]
 
                 return UrlDto(**record_dict)
 
@@ -49,7 +55,8 @@ class UrlRepository:
         with get_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
-                    "insert into url_checks (url_id, h1, title, description, status_code, created_at) " +
+                    "insert into url_checks "
+                    "(url_id, h1, title, description, status_code, created_at)"
                     "values (%s, %s, %s, %s, %s, %s) returning id;",
                     (url_check.url_id,
                      url_check.h1,
@@ -64,8 +71,12 @@ class UrlRepository:
     def get_checks_by_url_id(self, url_id) -> list[UrlCheckDto]:
         with get_connection() as connection:
             with connection.cursor() as cursor:
-                cursor.execute("select * from url_checks where url_id = %s order by id desc", url_id)
-                records_dict_list = self._convert_to_dict(cursor.description, cursor.fetchall())
+                cursor.execute(
+                    "select * from url_checks "
+                    "where url_id = %s order by id desc",
+                    url_id)
+                records_dict_list = self._convert_to_dict(cursor.description,
+                                                          cursor.fetchall())
 
                 return [UrlCheckDto(**record) for record in records_dict_list]
 

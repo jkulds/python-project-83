@@ -39,6 +39,7 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/urls
+          SECRET_KEY: tsetsetshelktjaeshjktahselkjthaesljktaeshljkh
         with:
           coverageCommand: make test-coverage
           debug: true

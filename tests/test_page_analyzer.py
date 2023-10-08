@@ -50,7 +50,7 @@ def test_correct_urls(client, urls_json):
                                  follow_redirects=True)
 
     assert check_response.status_code == 200
-    assert f"<td>200</td>" in check_response.text
+    assert "<td>200</td>" in check_response.text
 
 
 @pytest.mark.parametrize('urls_json',

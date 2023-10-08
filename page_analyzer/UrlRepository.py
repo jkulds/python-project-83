@@ -42,7 +42,7 @@ class UrlRepository:
 
                 return UrlDto(**record_dict)
 
-    def get_by_name(self, name: str) -> UrlDto|None:
+    def get_by_name(self, name: str) -> UrlDto | None:
         with get_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(f"select * from urls where name like '{name}';")

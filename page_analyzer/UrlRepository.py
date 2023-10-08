@@ -2,14 +2,13 @@ from page_analyzer.UrlDto import UrlDto
 
 
 class UrlRepository:
-    def __init__(self, connection, db_name):
+    def __init__(self, connection):
         self.connection = connection
-        self.db_name = db_name
 
     def get_all(self):
         cursor = self.connection.cursor()
 
-        cursor.execute(f"select * from {self.db_name} order by id desc")
+        cursor.execute(f"select * from urls order by id desc")
         records = cursor.fetchall()
 
         records_dict = self.convert_to_dict(cursor.description, records)
@@ -24,7 +23,7 @@ class UrlRepository:
     def add(self, url: UrlDto) -> UrlDto:
         cursor = self.connection.cursor()
 
-        cursor.execute(f"insert into {self.db_name} (name, created_at) values (%s, %s) RETURNING id",
+        cursor.execute(f"insert into urls (name, created_at) values (%s, %s) RETURNING id",
                        (url.name, url.created_at))
         url.id = cursor.fetchone()[0]
 
@@ -33,7 +32,7 @@ class UrlRepository:
     def get_by_id(self, id):
         cursor = self.connection.cursor()
 
-        cursor.execute(f"select * from {self.db_name} where id = %s", id)
+        cursor.execute(f"select * from urls where id = %s", id)
         record = cursor.fetchone()
 
         record_dict = self.convert_to_dict(cursor.description, record)[0]
@@ -45,7 +44,7 @@ class UrlRepository:
     def is_exists(self, name: str) -> bool:
         cursor = self.connection.cursor()
 
-        cursor.execute(f"select * from {self.db_name} where name like '{name}'")
+        cursor.execute(f"select * from urls where name like '{name}'")
         record = cursor.fetchone()
 
         return record is not None

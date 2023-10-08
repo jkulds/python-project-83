@@ -15,11 +15,10 @@ app = Flask(__name__)
 if "SECRET_KEY" not in os.environ:
     load_dotenv(find_dotenv())
 app.secret_key = os.getenv('SECRET_KEY')
-db_name = os.getenv('DB_NAME')
 db_connection = psycopg2.connect(os.getenv('DATABASE_URL'))
 db_connection.autocommit = True
 create_default_table(db_connection, f'{str(Path(os.path.dirname(__file__)).parent)}/database.sql')
-repository = UrlRepository(db_connection, db_name)
+repository = UrlRepository(db_connection)
 
 @app.route("/", methods=['GET'])
 def index():
@@ -63,6 +62,10 @@ def get_url_detail(id):
     url = repository.get_by_id(id)
     return render_template('urls/single.html', url=url)
 
+
+@app.post("/urls/<id>/checks")
+def checks():
+    return 'test'
 
 def create_app():
     return app

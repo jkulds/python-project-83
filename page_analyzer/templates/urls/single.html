@@ -45,6 +45,18 @@
               </tr>
             </thead>
             <tbody>
+            {% if url_checks %}
+            {% for check in url_checks %}
+              <tr>
+                <td>{{check.id|default('', True)}}</td>
+                <td>{{check.status_code|default('', True)}}</td>
+                <td>{{check.h1|default('', True)}}</td>
+                <td>{{check.title|default('', True)}}</td>
+                <td>{{check.description|default('', True)}}</td>
+                <td>{{check.created_at|default('', True)}}</td>
+              </tr>
+            {% endfor %}
+            {% endif %}
             </tbody>
           </table>
         </div>

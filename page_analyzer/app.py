@@ -4,9 +4,10 @@ from urllib.parse import urlparse
 
 import psycopg2
 import validators as validators
-from flask import Flask, render_template, redirect, request, flash
+from flask import Flask, render_template, redirect, request, flash, url_for
 from dotenv import load_dotenv, find_dotenv
 from page_analyzer.UrlRepository import UrlRepository
+from page_analyzer.models.UrlCkeckDto import UrlCheckDto
 
 from page_analyzer.models.UrlDto import UrlDto
 from page_analyzer.db import create_default_table
@@ -15,10 +16,11 @@ app = Flask(__name__)
 if "SECRET_KEY" not in os.environ:
     load_dotenv(find_dotenv())
 app.secret_key = os.getenv('SECRET_KEY')
-db_connection = psycopg2.connect(os.getenv('DATABASE_URL'))
-db_connection.autocommit = True
-create_default_table(db_connection, f'{str(Path(os.path.dirname(__file__)).parent)}/database.sql')
+
+create_default_table(f'{str(Path(os.path.dirname(__file__)).parent)}/database.sql')
+
 repository = UrlRepository()
+
 
 @app.route("/", methods=['GET'])
 def index():
@@ -54,18 +56,22 @@ def create_url():
     url = UrlDto(name=correct_name)
     created_url = repository.add(url)
 
-    return redirect(f'/urls/{created_url.id}')
+    return redirect(url_for('get_url_detail', id=created_url.id))
 
 
 @app.get('/urls/<id>')
 def get_url_detail(id):
     url = repository.get_by_id(id)
-    return render_template('urls/single.html', url=url)
+    url_checks = repository.get_checks_by_url_id(id)
+    return render_template('urls/single.html', url=url, url_checks=url_checks)
 
 
 @app.post("/urls/<id>/checks")
-def checks():
-    return 'test'
+def checks(id):
+    url_check = UrlCheckDto(url_id=id)
+    repository.add_check(url_check)
+    return redirect(url_for('get_url_detail', id=id))
+
 
 def create_app():
     return app

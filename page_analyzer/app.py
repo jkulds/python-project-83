@@ -9,23 +9,17 @@ from dotenv import load_dotenv, find_dotenv
 from page_analyzer.UrlRepository import UrlRepository
 
 from page_analyzer.UrlDto import UrlDto
+from page_analyzer.db_initializer import create_default_table
 
 app = Flask(__name__)
 if "SECRET_KEY" not in os.environ:
     load_dotenv(find_dotenv())
 app.secret_key = os.getenv('SECRET_KEY')
+db_name = os.getenv('DB_NAME')
 db_connection = psycopg2.connect(os.getenv('DATABASE_URL'))
 db_connection.autocommit = True
-
-def create_default_table(connection, path):
-    with open(path) as sql_file:
-        with connection.cursor() as cursor:
-            sql = sql_file.read()
-            cursor.execute(sql)
-
-
 create_default_table(db_connection, f'{str(Path(os.path.dirname(__file__)).parent)}/database.sql')
-repository = UrlRepository(db_connection)
+repository = UrlRepository(db_connection, db_name)
 
 @app.route("/", methods=['GET'])
 def index():
